@@ -13,8 +13,18 @@
         }
     });
 
+    const fetchBookmarks = ()=>{
+        return new Promise((resolve)=>{
+            chrome.storage.sync.get([currentVideo],(obj)=>{
+                resolve(obj[currentVideo] ? JSON.parse(obj[currentVideo]) : []);
+            });
+        });
+    }
+
     const newVideoLoaded = async ()=>{
       const bookmarkbtnExists =document.getElementsByClassName("bookmarkbtn")[0];
+
+      currentVideoBookMarks=await fetchBookmarks();
 
     if(!bookmarkbtnExists){
         const bookmarkbtn = document.createElement("img");
@@ -34,22 +44,23 @@
         bookmarkbtn.addEventListener("click",addNewBookmarkEventHandler);
 
 
-
     }
     }
-    const addNewBookmarkEventHandler =() => {
+    const addNewBookmarkEventHandler =async () => {
         const currentTime = youtubePlayer.currentTime;
+
         const newBookmark ={
             time: currentTime,
             desc:"bookmark at " + getTime(currentTime),
         };
-
+        currentVideoBookMarks = await fetchBookmarks();
         console.log(newBookmark);
 
        chrome.storage.sync.set({
-    [currentVideo]: JSON.stringify([...currentVideoBookmarks, newBookmark].sort((a, b) => a.time - b.time)),
-});
+    [currentVideo]: JSON.stringify([...currentVideoBookMarks, newBookmark].sort((a, b) => a.time - b.time)),
+        });
     }
+    
     newVideoLoaded();
     
 })();
