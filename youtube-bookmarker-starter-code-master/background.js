@@ -1,15 +1,11 @@
-chrome.tabs.OnUpdated.addListener(function(tabId, changeInfo, tab) {
-  if (tab.url && tab.url.includes('https://www.youtube.com/watch')) {
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+  if (changeInfo.status === "complete" && tab.url && tab.url.includes("youtube.com/watch")) {
+    const queryParameters = tab.url.split("?")[1];
+    const urlParameters = new URLSearchParams(queryParameters);
 
-      const queryparameter=tab.url.split("?")[1];
-      const urlparameter=new URLSearchParams(queryparameter);
-      
-      console.log(urlparameter);
-      chrome.tabs.sendMessage(tabId, {
-          type:"NEW",
-          videoId: urlparameter.get("v")  
-      // chrome.tabs.executeScript(tabId, {file: 'content.js'}, function() {
-      //     console.log('INJECTED');
-      // });
-  });
-}});
+    chrome.tabs.sendMessage(tabId, {
+      type: "NEW",
+      videoId: urlParameters.get("v"),
+    });
+  }
+});
